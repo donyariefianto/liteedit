@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LiteEdit</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="bundle.css">
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <div class="side-tabs">
+      <button id="tab-explorer" class="active">Explorer</button>
+      <button id="tab-git">Git</button>
+    </div>
+    <div id="pane-explorer">
+      <div class="folder-row">
+        <input id="folder-input" type="text" placeholder="C:\proyekku" spellcheck="false">
+        <button id="folder-open">Buka</button>
+      </div>
+      <div id="filetree"></div>
+    </div>
+    <div id="pane-git" class="hidden">
+      <button id="git-refresh" class="wide">Refresh status</button>
+      <div id="git-files"></div>
+      <input id="git-msg" type="text" placeholder="Pesan commit..." spellcheck="false">
+      <button id="git-commit" class="wide primary">Commit</button>
+      <div id="git-out"></div>
+    </div>
+  </aside>
+  <main id="main">
+    <div id="tabbar"></div>
+    <div id="editor"><div id="editor-empty">Buka file dari Explorer untuk mulai ngoding ✨</div></div>
+    <div id="terminal-pane">
+      <div id="terminal-header"><span>Terminal</span><button id="terminal-toggle">–</button></div>
+      <div id="terminal"></div>
+    </div>
+  </main>
+</div>
+<div id="statusbar"><span id="status-file"></span><span id="status-saved"></span></div>
+<script src="bundle.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+# Rust
+src-tauri/target/
+
+# Node
+node_modules/
+
+# Build output (diregenerasi via `npm run build`)
+dist/
