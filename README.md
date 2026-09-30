@@ -3,9 +3,13 @@
 Editor kode **super ringan** pengganti VS Code untuk **Windows** — dibangun dengan
 [Tauri v2](https://tauri.app) (backend Rust + WebView2, tanpa Electron).
 
-Fitur v0.1: editor multi-tab + syntax highlighting (CodeMirror 6), file
-explorer, terminal terintegrasi (PTY asli → `cmd.exe`), panel Git
-(status + commit), dan autocompletion berbasis kata.
+Fitur v0.2: editor multi-tab + syntax highlighting (CodeMirror 6, tema Tokyo
+Night), activity bar (Explorer / Search / Source Control), file explorer
+dengan menu konteks (file/folder baru, rename, hapus), breadcrumbs, status
+bar (branch, posisi kursor, bahasa), command palette (`Ctrl+Shift+P`),
+quick open (`Ctrl+P`), pencarian teks global (`Ctrl+Shift+F`) & di-file
+(`Ctrl+F`), multi-terminal (PTY asli → `cmd.exe`), panel Git (status +
+commit), dan autocompletion berbasis kata.
 
 Detail rancangan ada di [SPEC.md](SPEC.md).
 

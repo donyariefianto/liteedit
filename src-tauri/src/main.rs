@@ -7,6 +7,7 @@ use portable_pty::{native_pty_system, CommandBuilder, PtySize};
 use serde::Serialize;
 use std::collections::HashMap;
 use std::io::{Read, Write};
+use std::path::Path;
 use std::sync::Mutex;
 use tauri::{AppHandle, Emitter, State};
 
@@ -211,6 +212,181 @@ fn pty_kill(state: State<SharedPty>, id: String) -> Result<(), String> {
 
 // ---------------- main ----------------
 
+#[derive(Serialize)]
+struct SearchMatch {
+    path: String,
+    line: usize,
+    preview: String,
+}
+
+const SKIP_DIRS: &[&str] = &[
+    ".git", ".hg", ".svn", "node_modules", "target", "dist", "build",
+    "__pycache__", ".venv", "venv", ".idea", ".vscode",
+];
+
+fn skip_dir(name: &str) -> bool {
+    SKIP_DIRS.contains(&name)
+}
+
+fn looks_binary(p: &Path) -> bool {
+    use std::io::Read;
+    let mut f = match std::fs::File::open(p) {
+        Ok(f) => f,
+        Err(_) => return true,
+    };
+    let mut buf = [0u8; 8000];
+    let n = f.read(&mut buf).unwrap_or(0);
+    buf[..n].contains(&0)
+}
+
+/// Daftar semua file (relatif thd root) — untuk Quick Open (Ctrl+P).
+#[tauri::command]
+fn walk_files(path: String) -> Result<Vec<String>, String> {
+    let root = std::path::PathBuf::from(&path);
+    if !root.is_dir() {
+        return Err("folder tidak valid".into());
+    }
+    let mut out = Vec::new();
+    fn rec(root: &std::path::Path, dir: &std::path::Path, out: &mut Vec<String>) -> Result<(), String> {
+        let entries = std::fs::read_dir(dir).map_err(|e| e.to_string())?;
+        for e in entries {
+            let e = e.map_err(|e| e.to_string())?;
+            let p = e.path();
+            let name = e.file_name().to_string_lossy().into_owned();
+            if p.is_dir() {
+                if !skip_dir(&name) {
+                    rec(root, &p, out)?;
+                }
+            } else if p.is_file() {
+                if out.len() >= 10000 {
+                    return Ok(());
+                }
+                if let Ok(rel) = p.strip_prefix(root) {
+                    out.push(rel.to_string_lossy().replace('\\', "/"));
+                }
+            }
+        }
+        Ok(())
+    }
+    rec(&root, &root, &mut out)?;
+    out.sort();
+    Ok(out)
+}
+
+/// Cari teks di semua file (case-sensitive) — untuk panel Search.
+#[tauri::command]
+fn search_text(path: String, query: String) -> Result<Vec<SearchMatch>, String> {
+    if query.trim().is_empty() {
+        return Ok(vec![]);
+    }
+    let root = std::path::PathBuf::from(&path);
+    if !root.is_dir() {
+        return Err("folder tidak valid".into());
+    }
+    let mut out = Vec::new();
+    fn rec(
+        root: &Path,
+        dir: &Path,
+        query: &str,
+        out: &mut Vec<SearchMatch>,
+    ) -> Result<(), String> {
+        if out.len() >= 500 {
+            return Ok(());
+        }
+        let entries = std::fs::read_dir(dir).map_err(|e| e.to_string())?;
+        for e in entries {
+            let e = e.map_err(|e| e.to_string())?;
+            let p = e.path();
+            let name = e.file_name().to_string_lossy().into_owned();
+            if p.is_dir() {
+                if !skip_dir(&name) {
+                    rec(root, &p, query, out)?;
+                }
+                continue;
+            }
+            if !p.is_file() {
+                continue;
+            }
+            if p.metadata().map(|m| m.len() > 512 * 1024).unwrap_or(true) {
+                continue;
+            }
+            if looks_binary(&p) {
+                continue;
+            }
+            let text = match std::fs::read_to_string(&p) {
+                Ok(t) => t,
+                Err(_) => continue,
+            };
+            let rel = p
+                .strip_prefix(root)
+                .map(|r| r.to_string_lossy().replace('\\', "/"))
+                .unwrap_or_default();
+            for (i, line) in text.lines().enumerate() {
+                if line.contains(query) {
+                    out.push(SearchMatch {
+                        path: rel.clone(),
+                        line: i + 1,
+                        preview: line.trim().chars().take(120).collect(),
+                    });
+                    if out.len() >= 500 {
+                        return Ok(());
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+    rec(&root, &root, &query, &mut out)?;
+    Ok(out)
+}
+
+#[tauri::command]
+fn create_file(path: String) -> Result<(), String> {
+    let p = std::path::PathBuf::from(&path);
+    if let Some(parent) = p.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    std::fs::OpenOptions::new()
+        .create(true)
+        .write(true)
+        .open(&p)
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+fn create_dir(path: String) -> Result<(), String> {
+    std::fs::create_dir_all(&path).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn rename_path(from: String, to: String) -> Result<(), String> {
+    std::fs::rename(&from, &to).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn delete_path(path: String) -> Result<(), String> {
+    let p = std::path::PathBuf::from(&path);
+    if p.is_dir() {
+        std::fs::remove_dir_all(&p).map_err(|e| e.to_string())?;
+    } else {
+        std::fs::remove_file(&p).map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+fn git_branch(repo: String) -> Result<String, String> {
+    let out = std::process::Command::new("git")
+        .args(["-C", &repo, "branch", "--show-current"])
+        .output()
+        .map_err(|e| e.to_string())?;
+    if !out.status.success() {
+        return Err("bukan repo git".into());
+    }
+    Ok(String::from_utf8_lossy(&out.stdout).trim().to_string())
+}
+
 fn main() {
     tauri::Builder::default()
         .manage(Mutex::new(PtyState {
@@ -224,6 +400,13 @@ fn main() {
             write_file,
             git_status,
             git_commit,
+            git_branch,
+            search_text,
+            walk_files,
+            create_file,
+            create_dir,
+            rename_path,
+            delete_path,
             pty_spawn,
             pty_write,
             pty_kill,
@@ -281,5 +464,55 @@ mod tests {
         }
         let _ = child.wait();
         assert!(out.contains("hello-pty"), "output tak terduga: {out}");
+    }
+
+    fn tmpdir(nama: &str) -> std::path::PathBuf {
+        let p = std::env::temp_dir().join(format!("liteedit-test-{nama}"));
+        let _ = std::fs::remove_dir_all(&p);
+        std::fs::create_dir_all(&p).unwrap();
+        p
+    }
+
+    #[test]
+    fn file_ops_dan_search() {
+        let root = tmpdir("search");
+        let sub = root.join("sub");
+        std::fs::create_dir_all(&sub).unwrap();
+        std::fs::write(root.join("a.txt"), "hello world\nbaris dua\n").unwrap();
+        std::fs::write(sub.join("b.rs"), "fn main() {\n  // hello\n}\n").unwrap();
+        std::fs::write(root.join("bin.dat"), [0u8, 1, 2, 0, 3]).unwrap();
+        let r = root.to_string_lossy().into_owned();
+
+        // walk_files
+        let files = walk_files(r.clone()).unwrap();
+        assert!(files.contains(&"a.txt".to_string()));
+        assert!(files.contains(&"sub/b.rs".to_string()));
+
+        // search_text menemukan, tapi skip file biner
+        let hits = search_text(r.clone(), "hello".into()).unwrap();
+        assert_eq!(hits.len(), 2);
+        assert!(hits.iter().any(|h| h.path == "a.txt" && h.line == 1));
+
+        // create / rename / delete
+        create_file(format!("{r}/baru/deep.txt")).unwrap();
+        assert!(root.join("baru/deep.txt").exists());
+        rename_path(
+            format!("{r}/baru/deep.txt"),
+            format!("{r}/baru/ganti.txt"),
+        )
+        .unwrap();
+        assert!(root.join("baru/ganti.txt").exists());
+        delete_path(format!("{r}/baru")).unwrap();
+        assert!(!root.join("baru").exists());
+
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn git_branch_bukan_repo_gagal() {
+        let root = tmpdir("nogit");
+        let r = root.to_string_lossy().into_owned();
+        assert!(git_branch(r).is_err());
+        let _ = std::fs::remove_dir_all(&root);
     }
 }

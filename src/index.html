@@ -9,36 +9,96 @@
 </head>
 <body>
 <div id="app">
-  <aside id="sidebar">
-    <div class="side-tabs">
-      <button id="tab-explorer" class="active">Explorer</button>
-      <button id="tab-git">Git</button>
-    </div>
-    <div id="pane-explorer">
-      <div class="folder-row">
-        <input id="folder-input" type="text" placeholder="C:\proyekku" spellcheck="false">
-        <button id="folder-open">Buka</button>
+  <!-- Activity bar: pindah view seperti VS Code -->
+  <div id="activitybar">
+    <button data-view="explorer" class="active" title="Explorer (Ctrl+B)">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+    </button>
+    <button data-view="search" title="Search (Ctrl+Shift+F)">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    </button>
+    <button data-view="git" title="Source Control">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="12" r="2.5"/><path d="M6 8.5v7M8 7c4 0 3 4 7.5 4.7"/></svg>
+    </button>
+  </div>
+
+  <!-- Sidebar dengan 3 view -->
+  <div id="sidebar">
+    <div class="view" id="view-explorer">
+      <div class="view-header">
+        <span>EXPLORER</span>
+        <span class="view-actions">
+          <button id="btn-new-file" title="File baru">＋</button>
+          <button id="btn-new-folder" title="Folder baru">🗀+</button>
+          <button id="btn-refresh-tree" title="Refresh">⟳</button>
+        </span>
       </div>
-      <div id="filetree"></div>
+      <div id="folder-row">
+        <input id="folder-input" placeholder="C:\path\ke\folder" spellcheck="false" />
+        <button id="open-folder">Buka</button>
+      </div>
+      <div id="tree"></div>
     </div>
-    <div id="pane-git" class="hidden">
-      <button id="git-refresh" class="wide">Refresh status</button>
-      <div id="git-files"></div>
-      <input id="git-msg" type="text" placeholder="Pesan commit..." spellcheck="false">
-      <button id="git-commit" class="wide primary">Commit</button>
-      <div id="git-out"></div>
+
+    <div class="view hidden" id="view-search">
+      <div class="view-header"><span>SEARCH</span></div>
+      <div class="search-box">
+        <input id="search-input" placeholder="Cari teks di semua file…" spellcheck="false" />
+        <div id="search-results"></div>
+      </div>
     </div>
-  </aside>
-  <main id="main">
-    <div id="tabbar"></div>
-    <div id="editor"><div id="editor-empty">Buka file dari Explorer untuk mulai ngoding ✨</div></div>
-    <div id="terminal-pane">
-      <div id="terminal-header"><span>Terminal</span><button id="terminal-toggle">–</button></div>
-      <div id="terminal"></div>
+
+    <div class="view hidden" id="view-git">
+      <div class="view-header"><span>SOURCE CONTROL</span></div>
+      <div class="git-box">
+        <button id="git-refresh" class="wide">⟳ Refresh status</button>
+        <div id="git-status"></div>
+        <input id="git-msg" placeholder="Pesan commit…" spellcheck="false" />
+        <button id="git-commit" class="wide primary">✓ Commit</button>
+        <div id="git-out"></div>
+      </div>
     </div>
-  </main>
+  </div>
+
+  <!-- Area utama -->
+  <div id="main">
+    <div id="tabs"></div>
+    <div id="breadcrumbs"></div>
+    <div id="editor-wrap"><div id="editor"><div id="editor-empty">Buka file dari Explorer untuk mulai ngoding ✨</div></div></div>
+    <div id="panel">
+      <div id="panel-header">
+        <span class="panel-title">TERMINAL</span>
+        <span class="panel-actions">
+          <button id="btn-new-term" title="Terminal baru">＋</button>
+          <button id="btn-hide-panel" title="Sembunyikan (Ctrl+J)">▾</button>
+        </span>
+      </div>
+      <div id="terminals"></div>
+    </div>
+  </div>
 </div>
-<div id="statusbar"><span id="status-file"></span><span id="status-saved"></span></div>
+
+<!-- Status bar -->
+<div id="statusbar">
+  <div class="status-left">
+    <span id="status-branch" title="Branch git">⎇ -</span>
+  </div>
+  <div class="status-right">
+    <span id="status-pos">Ln 1, Col 1</span>
+    <span id="status-lang">Plain Text</span>
+    <span>UTF-8</span>
+  </div>
+</div>
+
+<!-- Command palette / Quick open -->
+<div id="palette" class="hidden">
+  <input id="palette-input" placeholder="Ketik perintah atau nama file…" spellcheck="false" />
+  <div id="palette-list"></div>
+</div>
+
+<!-- Menu konteks explorer -->
+<div id="ctxmenu" class="hidden"></div>
+
 <script src="bundle.js"></script>
 </body>
 </html>
