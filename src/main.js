@@ -15,15 +15,13 @@ import { rust } from "@codemirror/lang-rust";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
+import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 
-const tauri = window.__TAURI__;
-if (!tauri) {
+function tauriMissing() {
   document.body.innerHTML =
     "<p style='padding:2rem;font-family:sans-serif'>LiteEdit harus dijalankan lewat aplikasi Tauri, bukan browser biasa.</p>";
-  throw new Error("Tauri API tidak tersedia");
 }
-const invoke = tauri.core.invoke;
-const listen = tauri.event.listen;
 
 // ---------------- state ----------------
 let currentFolder = localStorage.getItem("liteedit.folder") || "";
@@ -284,13 +282,19 @@ document.getElementById("git-commit").onclick = async () => {
 
 // ---------------- boot ----------------
 (async function boot() {
+  try {
+    await invoke("get_cwd"); // tes jembatan IPC Tauri
+  } catch {
+    tauriMissing();
+    return;
+  }
   document.getElementById("folder-input").value = currentFolder;
   if (currentFolder) {
     try { await invoke("list_dir", { path: currentFolder }); }
     catch { currentFolder = ""; }
   }
   if (!currentFolder) {
-    try { currentFolder = await invoke("get_cwd"); } catch { /* abaikan */ }
+    currentFolder = await invoke("get_cwd");
     document.getElementById("folder-input").value = currentFolder;
   }
   await renderTree();
