@@ -1,26 +1,40 @@
 # LiteEdit
 
+[![CI](https://github.com/donyariefianto/liteedit/actions/workflows/ci.yml/badge.svg)](https://github.com/donyariefianto/liteedit/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/donyariefianto/liteedit)](https://github.com/donyariefianto/liteedit/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Editor kode **super ringan** pengganti VS Code untuk **Windows** — dibangun dengan
 [Tauri v2](https://tauri.app) (backend Rust + WebView2, tanpa Electron).
 
-Fitur v0.2: editor multi-tab + syntax highlighting (CodeMirror 6, tema Tokyo
-Night), activity bar (Explorer / Search / Source Control), file explorer
-dengan menu konteks (file/folder baru, rename, hapus), breadcrumbs, status
-bar (branch, posisi kursor, bahasa), command palette (`Ctrl+Shift+P`),
-quick open (`Ctrl+P`), pencarian teks global (`Ctrl+Shift+F`) & di-file
-(`Ctrl+F`), multi-terminal (PTY asli → `cmd.exe`), panel Git (status +
-commit), dan autocompletion berbasis kata.
+## Fitur
 
-Detail rancangan ada di [SPEC.md](SPEC.md).
+- Editor multi-tab + syntax highlighting (CodeMirror 6, tema Tokyo Night)
+- Activity bar ala VS Code: Explorer, Search, Source Control
+- File explorer dengan menu konteks (file/folder baru, rename, hapus)
+- Breadcrumbs, status bar (branch git, posisi kursor, bahasa file)
+- Command palette (`Ctrl+Shift+P`), quick open (`Ctrl+P`)
+- Pencarian teks global (`Ctrl+Shift+F`) & di dalam file (`Ctrl+F`)
+- Multi-terminal (PTY asli → `cmd.exe`)
+- Panel Git (status + commit), autocompletion berbasis kata
 
-## Syarat (di Windows)
+Detail rancangan ada di [SPEC.md](SPEC.md), riwayat perubahan di
+[CHANGELOG.md](CHANGELOG.md).
+
+## Instalasi
+
+Unduh installer terbaru dari halaman
+[Releases](https://github.com/donyariefianto/liteedit/releases)
+(`LiteEdit_X.Y.Z_x64-setup.exe` untuk Windows).
+
+## Pengembangan
+
+Syarat (di Windows):
 
 - [Rust](https://rustup.rs) (via `rustup`)
 - [Node.js](https://nodejs.org) 18+
 - WebView2 — biasanya sudah bawaan Windows 10/11
 - [Git for Windows](https://git-scm.com) — untuk panel Git
-
-## Jalan cepat
 
 ```powershell
 cd liteedit
@@ -36,16 +50,22 @@ otomatis di-generate saat build via `scripts/make-icons.mjs`.
 
 ```
 liteedit/
-├── src/                  # frontend (dibundel esbuild → dist/)
+├── .github/workflows/        # CI (build+test) & Release otomatis
+├── src/                      # frontend (dibundel esbuild → dist/)
 │   ├── index.html
 │   ├── styles.css
-│   └── main.js           # CodeMirror, xterm.js, tab, explorer, git UI
+│   └── main.js               # CodeMirror, xterm.js, tab, explorer, git UI
 ├── src-tauri/
-│   ├── src/main.rs       # perintah Tauri: file I/O, git CLI, PTY
+│   ├── src/main.rs           # perintah Tauri: file I/O, git CLI, PTY
 │   ├── tauri.conf.json
-│   └── icons/            # dibuat via tools/make_icons.py
-├── tools/make_icons.py   # generator ikon PNG + ICO (stdlib saja)
+│   └── icons/                # di-generate otomatis saat build
+├── scripts/
+│   ├── build.mjs             # build frontend (cross-platform)
+│   ├── make-icons.mjs        # generator ikon PNG + ICO
+│   └── version.mjs           # sinkronisasi versi package.json → Rust/Tauri
 ├── SPEC.md
+├── CHANGELOG.md
+├── LICENSE
 └── README.md
 ```
 
@@ -71,11 +91,7 @@ git push origin main --tags
 Push tag `v*` memicu workflow **Release**: GitHub Actions otomatis build
 installer Windows & Linux lalu publish sebagai GitHub Release.
 Setiap push ke `main` menjalankan workflow **CI** (build + cargo check + test).
-Perubahan tiap versi dicatat di [CHANGELOG.md](CHANGELOG.md).
 
-## Catatan
+## Lisensi
 
-- v0.1 adalah scaffold yang sudah terverifikasi kompilasinya (lihat SPEC §5),
-  tapi binary Windows-nya harus dibangun di mesin Windows.
-- Autocompletion v0.1 masih berbasis kata dari dokumen — LSP semantik
-  masuk roadmap (SPEC §7).
+LiteEdit dirilis di bawah [lisensi MIT](LICENSE).
