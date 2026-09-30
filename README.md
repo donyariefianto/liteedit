@@ -20,11 +20,13 @@ Detail rancangan ada di [SPEC.md](SPEC.md).
 
 ```powershell
 cd liteedit
-python tools/make_icons.py   # generate ikon (sekali saja)
 npm install
 npm run tauri dev     # mode pengembangan
 npm run tauri build   # hasilkan installer + .exe di src-tauri/target/release/bundle
 ```
+
+Ikon aplikasi (`src-tauri/icons/`) tidak ikut ke git karena file biner —
+otomatis di-generate saat build via `scripts/make-icons.mjs`.
 
 ## Struktur
 
