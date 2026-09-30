@@ -16,7 +16,7 @@
     "@xterm/xterm": "^5.5.0",
     "codemirror": "^6.0.1"
   },
-  "description": "LiteEdit \u2014 editor kode super ringan pengganti VS Code (Tauri + Rust)",
+  "description": "LiteEdit — editor kode super ringan pengganti VS Code (Tauri + Rust)",
   "devDependencies": {
     "@tauri-apps/cli": "^2.0.0",
     "esbuild": "^0.24.0"
@@ -28,5 +28,22 @@
     "tauri": "tauri"
   },
   "type": "module",
-  "version": "0.2.0"
+  "version": "0.2.0",
+  "license": "MIT",
+  "author": "donyariefianto",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/donyariefianto/liteedit.git"
+  },
+  "homepage": "https://github.com/donyariefianto/liteedit",
+  "bugs": {
+    "url": "https://github.com/donyariefianto/liteedit/issues"
+  },
+  "keywords": [
+    "editor",
+    "tauri",
+    "rust",
+    "vscode-alternative",
+    "windows"
+  ]
 }
