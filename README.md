@@ -8,7 +8,8 @@ Night), activity bar (Explorer / Search / Source Control), file explorer
 dengan menu konteks (file/folder baru, rename, hapus), breadcrumbs, status
 bar (branch, posisi kursor, bahasa), command palette (`Ctrl+Shift+P`),
 quick open (`Ctrl+P`), pencarian teks global (`Ctrl+Shift+F`) & di-file
-(`Ctrl+F`), multi-terminal (PTY asli → `cmd.exe`), panel Git (status +
+(`Ctrl+F`), multi-terminal + split berdampingan (PTY asli dengan auto-resize,
+shell mengikuti OS), panel Git (status +
 commit), dan autocompletion berbasis kata.
 
 Detail rancangan ada di [SPEC.md](SPEC.md).
@@ -36,6 +37,7 @@ otomatis di-generate saat build via `scripts/make-icons.mjs`.
 
 ```
 liteedit/
+├── LICENSE-MIT          # lisensi MIT
 ├── src/                  # frontend (dibundel esbuild → dist/)
 │   ├── index.html
 │   ├── styles.css
@@ -72,6 +74,17 @@ Push tag `v*` memicu workflow **Release**: GitHub Actions otomatis build
 installer Windows & Linux lalu publish sebagai GitHub Release.
 Setiap push ke `main` menjalankan workflow **CI** (build + cargo check + test).
 Perubahan tiap versi dicatat di [CHANGELOG.md](CHANGELOG.md).
+
+## Lisensi
+
+LiteEdit berlisensi **MIT** — lihat [LICENSE-MIT](LICENSE-MIT). Bebas dipakai,
+dimodifikasi, dan didistribusikan ulang (termasuk untuk keperluan komersial)
+selama pemberitahuan hak cipta tetap disertakan.
+
+Dibangun di atas proyek open source: [Tauri](https://tauri.app),
+[CodeMirror 6](https://codemirror.net), [xterm.js](https://xtermjs.org),
+dan [portable-pty](https://github.com/wez/wezterm) — terima kasih kepada
+para maintainernya.
 
 ## Catatan
 

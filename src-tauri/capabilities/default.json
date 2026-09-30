@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Kemampuan default LiteEdit: IPC inti, termasuk event pty-data agar terminal menerima output PTY.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

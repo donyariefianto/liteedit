@@ -2,6 +2,8 @@
 name = "liteedit"
 version = "0.2.0"
 description = "LiteEdit — editor kode super ringan (Tauri + Rust)"
+license = "MIT"
+authors = ["LiteEdit contributors"]
 edition = "2021"
 
 [build-dependencies]

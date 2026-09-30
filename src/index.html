@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en" data-theme="dark-modern">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,96 +8,301 @@
 <link rel="stylesheet" href="bundle.css">
 </head>
 <body>
+<!-- ===== Title bar (ala VS Code) ===== -->
+<div id="titlebar">
+  <div id="menubar" role="menubar" aria-label="Application menu">
+    <button class="menu-top" data-menu="file">File</button>
+    <button class="menu-top" data-menu="edit">Edit</button>
+    <button class="menu-top" data-menu="selection">Selection</button>
+    <button class="menu-top" data-menu="view">View</button>
+    <button class="menu-top" data-menu="go">Go</button>
+    <button class="menu-top" data-menu="run">Run</button>
+    <button class="menu-top" data-menu="terminal">Terminal</button>
+    <button class="menu-top" data-menu="help">Help</button>
+  </div>
+  <div id="command-center" title="Search files (Ctrl+P) — Commands (Ctrl+Shift+P)">
+    <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor"><path d="M7 2a5 5 0 1 0 3.5 8.5l3 3 1-1-3-3A5 5 0 0 0 7 2zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>
+    <span id="command-center-label">LiteEdit</span>
+  </div>
+  <div id="titlebar-actions">
+    <button id="layout-sidebar" title="Toggle Primary Side Bar (Ctrl+B)" aria-label="Toggle sidebar">
+      <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M2 2h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zm1 1v10h5V3zm6 0v10h4V3z" opacity=".9"/></svg>
+    </button>
+    <button id="layout-panel" title="Toggle Panel (Ctrl+J)" aria-label="Toggle panel">
+      <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M2 2h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zm1 1v4h10V3zm0 5v5h10V8z" opacity=".9"/></svg>
+    </button>
+    <button id="layout-maximize" title="Maximize Panel" aria-label="Maximize panel">
+      <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 9V3h6M3 3l5 5M9 7v6H3V7"/></svg>
+    </button>
+    <button id="titlebar-settings" title="Settings" aria-label="Settings">
+      <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2L3.4 12.6"/></svg>
+    </button>
+  </div>
+</div>
+<div id="menudropdown" class="hidden"></div>
+
 <div id="app">
-  <!-- Activity bar: pindah view seperti VS Code -->
-  <div id="activitybar">
-    <button data-view="explorer" class="active" title="Explorer (Ctrl+B)">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-    </button>
-    <button data-view="search" title="Search (Ctrl+Shift+F)">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-    </button>
-    <button data-view="git" title="Source Control">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="12" r="2.5"/><path d="M6 8.5v7M8 7c4 0 3 4 7.5 4.7"/></svg>
-    </button>
+  <!-- ===== Activity bar ===== -->
+  <div id="activitybar" role="navigation" aria-label="Activity bar">
+    <div class="act-top">
+      <button data-view="explorer" class="active" title="Explorer (Ctrl+Shift+E)">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h7l2 2h7v12H4z"/><path d="M4 4v16" opacity=".5"/></svg>
+      </button>
+      <button data-view="search" title="Search (Ctrl+Shift+F)">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="6"/><path d="M20 20l-3.8-3.8"/></svg>
+      </button>
+      <button data-view="git" title="Source Control (Ctrl+Shift+G)">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="2.2"/><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="8" r="2.2"/><path d="M6 8.2v7.6M18 10.2c0 3.5-6 2.6-8.5 4.3"/></svg>
+        <span class="act-badge hidden" id="git-badge">0</span>
+      </button>
+      <button data-view="run" title="Run and Debug (Ctrl+Shift+D)">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 4l13 8-13 8z"/><circle cx="5" cy="5" r="1" fill="currentColor"/><circle cx="5" cy="19" r="1" fill="currentColor"/></svg>
+      </button>
+      <button data-view="extensions" title="Extensions (Ctrl+Shift+X)">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3H4v5h5zM20 3h-5v5h5zM9 16H4v5h5zM20 10h-8v9a2 2 0 0 0 2 2h6z"/><path d="M12 10V4a2 2 0 0 0-2-2h1v8z" opacity=".6"/></svg>
+      </button>
+    </div>
+    <div class="act-bottom">
+      <button id="act-accounts" title="Accounts">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="3.5"/><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5"/></svg>
+      </button>
+      <button id="act-manage" title="Manage">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>
+      </button>
+    </div>
   </div>
 
-  <!-- Sidebar dengan 3 view -->
+  <!-- ===== Sidebar ===== -->
   <div id="sidebar">
+    <!-- EXPLORER -->
     <div class="view" id="view-explorer">
-      <div class="view-header">
-        <span>EXPLORER</span>
-        <span class="view-actions">
-          <button id="btn-new-file" title="File baru">＋</button>
-          <button id="btn-new-folder" title="Folder baru">🗀+</button>
-          <button id="btn-refresh-tree" title="Refresh">⟳</button>
-        </span>
+      <div class="view-title">EXPLORER</div>
+      <div class="section">
+        <div class="section-header" data-section="open-editors">
+          <span class="twisty">▾</span><span class="section-label">OPEN EDITORS</span>
+          <span class="section-count" id="open-editors-count"></span>
+        </div>
+        <div class="section-body" id="open-editors"></div>
       </div>
-      <div id="folder-row">
-        <input id="folder-input" placeholder="C:\path\ke\folder" spellcheck="false" />
-        <button id="open-folder">Buka</button>
+      <div class="section grow">
+        <div class="section-header" data-section="folder">
+          <span class="twisty">▾</span><span class="section-label" id="explorer-folder-name">NO FOLDER OPENED</span>
+          <span class="section-actions">
+            <button id="btn-new-file" title="New File…">＋</button>
+            <button id="btn-new-folder" title="New Folder…">🗀</button>
+            <button id="btn-refresh-tree" title="Refresh Explorer">⟳</button>
+            <button id="btn-collapse-all" title="Collapse Folders in View">⤢</button>
+          </span>
+        </div>
+        <div class="section-body grow" id="explorer-body">
+          <div id="folder-row">
+            <input id="folder-input" placeholder="Open folder path…  (Ctrl+O)" spellcheck="false" />
+            <button id="open-folder">Open</button>
+          </div>
+          <div id="welcome-explorer" class="explorer-welcome">
+            <p>You have not yet opened a folder.</p>
+            <button class="linklike" id="welcome-open-folder">Open Folder</button>
+            <button class="linklike" id="welcome-open-recent">Open Recent…</button>
+            <p class="dim">Opening a folder will close all currently open editors. To keep them open, <span class="linklike" id="welcome-add-folder">add the folder</span> instead.</p>
+            <p class="dim">You can also open a folder from the <b>File</b> menu.</p>
+          </div>
+          <div id="tree"></div>
+        </div>
       </div>
-      <div id="tree"></div>
+      <div class="section">
+        <div class="section-header collapsed" data-section="outline">
+          <span class="twisty">▸</span><span class="section-label">OUTLINE</span>
+        </div>
+        <div class="section-body hidden" id="outline-body"><div class="hint">No symbols found in the active editor.</div></div>
+      </div>
+      <div class="section">
+        <div class="section-header collapsed" data-section="timeline">
+          <span class="twisty">▸</span><span class="section-label">TIMELINE</span>
+        </div>
+        <div class="section-body hidden"><div class="hint">File history will appear here once a folder is opened.</div></div>
+      </div>
     </div>
 
+    <!-- SEARCH -->
     <div class="view hidden" id="view-search">
-      <div class="view-header"><span>SEARCH</span></div>
-      <div class="search-box">
-        <input id="search-input" placeholder="Cari teks di semua file…" spellcheck="false" />
-        <div id="search-results"></div>
+      <div class="view-title">SEARCH</div>
+      <div class="search-tools">
+        <div class="search-row">
+          <button id="search-toggle-replace" title="Toggle Replace mode">⇄</button>
+          <input id="search-input" placeholder="Search" spellcheck="false" aria-label="Search" />
+          <span class="search-btns">
+            <button id="search-case" title="Match Case (Alt+C)">Aa</button>
+            <button id="search-word" title="Match Whole Word (Alt+W)"><u>W</u></button>
+            <button id="search-regex" title="Use Regular Expression (Alt+R)">.*</button>
+          </span>
+        </div>
+        <div class="search-row hidden" id="replace-row">
+          <input id="replace-input" placeholder="Replace" spellcheck="false" aria-label="Replace" />
+          <span class="search-btns">
+            <button id="replace-one" title="Replace">⇄</button>
+            <button id="replace-all" title="Replace All">⇉</button>
+          </span>
+        </div>
+        <div class="search-row">
+          <input id="search-include" placeholder="files to include" spellcheck="false" title="Files to include (glob, comma separated)" />
+        </div>
+        <div class="search-row">
+          <input id="search-exclude" placeholder="files to exclude" spellcheck="false" title="Files to exclude (glob, comma separated)" />
+        </div>
+        <div class="search-meta"><span id="search-count"></span>
+          <span class="spacer"></span>
+          <button id="search-refresh" title="Refresh">⟳</button>
+          <button id="search-clear" title="Clear">✕</button>
+          <button id="search-collapse" title="Collapse All">⤢</button>
+        </div>
+      </div>
+      <div id="search-results" role="tree" aria-label="Search results"></div>
+    </div>
+
+    <!-- SOURCE CONTROL -->
+    <div class="view hidden" id="view-git">
+      <div class="view-title">SOURCE CONTROL</div>
+      <div class="git-box">
+        <div class="git-commitbox">
+          <textarea id="git-msg" placeholder="Message (Ctrl+Enter to commit)" spellcheck="false" rows="2"></textarea>
+          <button id="git-commit" class="commit-btn">✓&nbsp; Commit</button>
+        </div>
+        <div class="git-toolbar">
+          <button id="git-refresh" title="Refresh">⟳ Refresh</button>
+          <span class="spacer"></span>
+          <span id="git-branch-label" class="dim"></span>
+        </div>
+        <div id="git-status"></div>
+        <div id="git-out" class="hint"></div>
       </div>
     </div>
 
-    <div class="view hidden" id="view-git">
-      <div class="view-header"><span>SOURCE CONTROL</span></div>
-      <div class="git-box">
-        <button id="git-refresh" class="wide">⟳ Refresh status</button>
-        <div id="git-status"></div>
-        <input id="git-msg" placeholder="Pesan commit…" spellcheck="false" />
-        <button id="git-commit" class="wide primary">✓ Commit</button>
-        <div id="git-out"></div>
+    <!-- RUN -->
+    <div class="view hidden" id="view-run">
+      <div class="view-title">RUN AND DEBUG</div>
+      <div class="run-box">
+        <p><b>Run and Debug</b></p>
+        <p class="dim">Open a file to get custom run configurations, or quick-run the active file in the integrated terminal.</p>
+        <button id="btn-run-file" class="wide primary-vs">▷&nbsp; Run Active File</button>
+        <button id="btn-debug-file" class="wide">🐞&nbsp; Start Debugging</button>
+        <p class="hint">Breakpoints &amp; launch.json are not yet supported — the file runs via the active terminal shell.</p>
       </div>
+    </div>
+
+    <!-- EXTENSIONS -->
+    <div class="view hidden" id="view-extensions">
+      <div class="view-title">EXTENSIONS</div>
+      <div class="search-row" style="padding:0 12px 8px"><input id="ext-search" placeholder="Search Extensions in Marketplace" spellcheck="false" /></div>
+      <div id="ext-list"></div>
     </div>
   </div>
+  <div id="sidebar-resize" title="Resize sidebar"></div>
 
-  <!-- Area utama -->
+  <!-- ===== Main ===== -->
   <div id="main">
-    <div id="tabs"></div>
-    <div id="breadcrumbs"></div>
-    <div id="editor-wrap"><div id="editor"><div id="editor-empty">Buka file dari Explorer untuk mulai ngoding ✨</div></div></div>
+    <div id="tabsbar">
+      <div id="tabs" role="tablist"></div>
+      <div id="editor-actions">
+        <button id="ed-split" title="Split Editor (Ctrl+\\)">⫿</button>
+        <button id="ed-more" title="More Actions…">⋯</button>
+      </div>
+    </div>
+    <div id="breadcrumbs" aria-label="Breadcrumbs"></div>
+    <div id="editor-wrap">
+      <div id="editor"><div id="editor-empty"></div></div>
+      <!-- Welcome (VS Code style) -->
+      <div id="welcome" class="hidden">
+        <div class="welcome-inner">
+          <div class="welcome-logo">Lite<span>Edit</span></div>
+          <p class="welcome-sub">Lightweight code editor — VS Code experience, fraction of the weight.</p>
+          <div class="welcome-cols">
+            <div class="welcome-col">
+              <h3>Start</h3>
+              <button class="linklike" data-cmd="new-file">＋ New File… <span class="kbd">Ctrl+N</span></button>
+              <button class="linklike" data-cmd="open-folder">🗀 Open Folder… <span class="kbd">Ctrl+O</span></button>
+              <button class="linklike" data-cmd="open-recent">⟲ Open Recent…</button>
+              <button class="linklike" data-cmd="new-term">❯ New Terminal <span class="kbd">Ctrl+`</span></button>
+            </div>
+            <div class="welcome-col">
+              <h3>Recent</h3>
+              <div id="welcome-recent"><span class="dim">No recent folders</span></div>
+            </div>
+            <div class="welcome-col">
+              <h3>Help</h3>
+              <button class="linklike" data-cmd="palette">⌨ Command Palette <span class="kbd">F1</span></button>
+              <button class="linklike" data-cmd="shortcuts">⌨ Keyboard Shortcuts <span class="kbd">Ctrl+K S</span></button>
+              <button class="linklike" data-cmd="themes">🎨 Color Themes <span class="kbd">Ctrl+K T</span></button>
+              <button class="linklike" data-cmd="about">ⓘ About LiteEdit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="panel-resize" title="Resize panel"></div>
     <div id="panel">
-      <div id="panel-header">
-        <span class="panel-title">TERMINAL</span>
+      <div id="panel-header" role="tablist" aria-label="Panel">
+        <span class="panel-tabs">
+          <button class="ptab" data-panel="problems">PROBLEMS <span class="count hidden" id="problems-count">0</span></button>
+          <button class="ptab" data-panel="output">OUTPUT</button>
+          <button class="ptab" data-panel="debug">DEBUG CONSOLE</button>
+          <button class="ptab active" data-panel="terminal">TERMINAL</button>
+        </span>
         <span class="panel-actions">
-          <button id="btn-new-term" title="Terminal baru">＋</button>
-          <button id="btn-hide-panel" title="Sembunyikan (Ctrl+J)">▾</button>
+          <span class="term-tabs" id="term-tabs"></span>
+          <button id="btn-new-term" title="New Terminal (Ctrl+Shift+`)">＋</button>
+          <button id="btn-split-term" title="Split Terminal">⫿</button>
+          <button id="btn-kill-term" title="Kill Terminal">🗑</button>
+          <button id="btn-max-panel" title="Maximize Panel Size">⤢</button>
+          <button id="btn-hide-panel" title="Hide Panel (Ctrl+J)">▾</button>
         </span>
       </div>
-      <div id="terminals"></div>
+      <div id="panel-body">
+        <div id="panel-problems" class="hidden"><div id="problems-list"></div></div>
+        <div id="panel-output" class="hidden">
+          <div class="output-bar"><select id="output-channel"><option>LiteEdit</option><option>Git</option><option>Terminal</option></select><span class="spacer"></span><button id="output-clear" title="Clear Output">✕ Clear</button></div>
+          <div id="output-log"></div>
+        </div>
+        <div id="panel-debug" class="hidden"><div class="hint">Debug console is empty. Start debugging from the Run view.</div></div>
+        <div id="terminals"></div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Status bar -->
+<!-- ===== Status bar ===== -->
 <div id="statusbar">
   <div class="status-left">
-    <span id="status-branch" title="Branch git">⎇ -</span>
+    <button id="status-branch" class="stbtn" title="Branch — click to open Source Control">⎇ -</button>
+    <button id="status-sync" class="stbtn" title="Synchronize (not connected)">⇅</button>
+    <button id="status-errors" class="stbtn" title="Problems — click to open Problems panel">ⓧ 0 ⚠ 0</button>
   </div>
   <div class="status-right">
-    <span id="status-pos">Ln 1, Col 1</span>
-    <span id="status-lang">Plain Text</span>
-    <span>UTF-8</span>
+    <button id="status-pos" class="stbtn" title="Go to Line/Column (Ctrl+G)">Ln 1, Col 1</button>
+    <button id="status-indent" class="stbtn" title="Indentation">Spaces: 2</button>
+    <button id="status-encoding" class="stbtn" title="Encoding">UTF-8</button>
+    <button id="status-eol" class="stbtn" title="Line ending">LF</button>
+    <button id="status-lang" class="stbtn" title="Language mode — click to change">Plain Text</button>
+    <button id="status-bell" class="stbtn" title="Notifications">🔔</button>
   </div>
 </div>
 
 <!-- Command palette / Quick open -->
-<div id="palette" class="hidden">
-  <input id="palette-input" placeholder="Ketik perintah atau nama file…" spellcheck="false" />
-  <div id="palette-list"></div>
+<div id="palette" class="hidden" role="dialog" aria-label="Quick open">
+  <div class="palette-input-row">
+    <span id="palette-prefix">›</span>
+    <input id="palette-input" placeholder="" spellcheck="false" />
+  </div>
+  <div id="palette-list" role="listbox"></div>
+  <div id="palette-footer"><span>Type <b>?</b> for help · <b>›</b> commands · <b>@</b> symbols · <b>:</b> line · <b>#</b> recent</span></div>
 </div>
+<div id="palette-overlay" class="hidden"></div>
 
-<!-- Menu konteks explorer -->
-<div id="ctxmenu" class="hidden"></div>
+<!-- Generic modal (confirm / prompt / settings / shortcuts / themes) -->
+<div id="modal-overlay" class="hidden"><div id="modal" role="dialog"></div></div>
+<!-- Manage menu, tab ctx, editor ctx share one element -->
+<div id="ctxmenu" class="hidden" role="menu"></div>
+<!-- Notifications -->
+<div id="notifications" aria-live="polite"></div>
 
 <script src="bundle.js"></script>
 </body>

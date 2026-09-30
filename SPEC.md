@@ -69,6 +69,13 @@ event `pty-data` → `term.write()`. Dua arah, real-time.
 - `npm run build` → `dist/bundle.js` + `bundle.css` sukses (esbuild).
 - `cargo check` di `src-tauri` → kompilasi Rust sukses.
 - `cargo test pty_bisa_echo` → PTY spawn + baca output lolos.
+- Terminal butuh `src-tauri/capabilities/default.json` (`core:default`):
+  tanpa capability, event inti `pty-data` (listen/emit) diblokir Tauri v2
+  sehingga terminal blank total padahal invoke lain jalan (2026-10-01).
+  Catatan Windows (ditemukan 2026-10-01): `MasterPty` wajib disimpan hidup
+  selama sesi — drop master menutup ConPTY (anak mati, reader EOF).
+  `pty_spawn` kini menyimpan master di `PtySession`, dan tes memakai pola
+  yang sama (shell interaktif + tulis via writer).
 - Ikon PNG + ICO tergenerate (`tools/make_icons.py`).
 
 ## 6. Batasan jujur v0.1
@@ -77,7 +84,9 @@ event `pty-data` → `term.write()`. Dua arah, real-time.
   (`npm run tauri build`). VM ini Linux, jadi belum ada `.exe`/installer.
 - Autocompletion masih sederhana (kata dari dokumen), belum LSP
   (belum ada analisis semantik / saran API).
-- PTY resize setelah spawn belum diimplementasikan.
+- PTY resize setelah spawn sudah diimplementasikan (`pty_resize`: frontend
+  memanggilnya tiap selesai fit — spawn, ganti tab, resize panel/window —
+  di semua OS; portable-pty menyimpan `MasterPty` di sesi).
 - Git: belum ada diff view, history/log, push/pull, branch.
 - Belum ada: pencarian global, settings/tema, multi-window, auto-update,
   ekstensi.
@@ -96,3 +105,12 @@ event `pty-data` → `term.write()`. Dua arah, real-time.
 - Nama final (LiteEdit = nama kerja).
 - Distribusi: installer NSIS vs portable `.exe`.
 - Bahasa UI: Indonesia / Inggris (sekarang campur, cenderung Indonesia).
+
+## 9. Lisensi & kredit
+
+- Lisensi: **MIT** (`LICENSE-MIT`, pemegang hak cipta: LiteEdit contributors).
+- Header `SPDX-License-Identifier: MIT` ada di `src-tauri/src/main.rs`,
+  `src/main.js`, dan `src/theme.js`; field lisensi terisi di `package.json`,
+  `src-tauri/Cargo.toml`, dan `src-tauri/tauri.conf.json` (bundle).
+- Dependensi open source utama: Tauri v2, CodeMirror 6, xterm.js,
+  portable-pty.

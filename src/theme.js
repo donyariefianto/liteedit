@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // Tema editor LiteEdit — "Tokyo Night": kontras lembut, nyaman di mata.
 // Dipakai sebagai pengganti oneDark bawaan CodeMirror.
 import { EditorView } from "@codemirror/view";

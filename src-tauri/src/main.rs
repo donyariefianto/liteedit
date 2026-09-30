@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: MIT
+// Sembunyikan jendela console luar di build rilis Windows: semua I/O
+// (termasuk PTY terminal) sudah dialirkan ke dalam UI via event Tauri.
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 //! LiteEdit — backend Rust.
 //! Perintah Tauri: file I/O, git (via CLI), dan PTY asli untuk terminal.
 //! Target utama Windows (cmd.exe), tapi kode PTY-nya cross-platform.
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use portable_pty::{native_pty_system, CommandBuilder, PtySize};
+use portable_pty::{native_pty_system, CommandBuilder, MasterPty, PtySize};
 use serde::Serialize;
 use std::collections::HashMap;
 use std::io::{Read, Write};
@@ -100,6 +105,7 @@ fn git_commit(repo: String, message: String) -> Result<String, String> {
 // ---------------- PTY (terminal asli) ----------------
 
 struct PtySession {
+    master: Box<dyn MasterPty + Send>,
     writer: Box<dyn Write + Send>,
     child: Box<dyn portable_pty::Child + Send>,
 }
@@ -184,7 +190,14 @@ fn pty_spawn(
             }
         }
     });
-    st.sessions.insert(id.clone(), PtySession { writer, child });
+    st.sessions.insert(
+        id.clone(),
+        PtySession {
+            master: pair.master,
+            writer,
+            child,
+        },
+    );
     Ok(id)
 }
 
@@ -199,6 +212,23 @@ fn pty_write(state: State<SharedPty>, id: String, data: String) -> Result<(), St
         .write_all(data.as_bytes())
         .map_err(|e| e.to_string())?;
     s.writer.flush().map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn pty_resize(state: State<SharedPty>, id: String, cols: u16, rows: u16) -> Result<(), String> {
+    let st = state.lock().map_err(|e| e.to_string())?;
+    let s = st
+        .sessions
+        .get(&id)
+        .ok_or_else(|| "pty tidak ditemukan".to_string())?;
+    s.master
+        .resize(PtySize {
+            rows,
+            cols,
+            pixel_width: 0,
+            pixel_height: 0,
+        })
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -409,6 +439,7 @@ fn main() {
             delete_path,
             pty_spawn,
             pty_write,
+            pty_resize,
             pty_kill,
         ])
         .run(tauri::generate_context!())
@@ -428,6 +459,9 @@ mod tests {
 
     /// Tes paling penting: PTY benar-benar bisa menjalankan perintah
     /// dan mengembalikan outputnya (tanpa GUI Tauri).
+    /// Shell dibiarkan interaktif dan perintah dikirim via writer —
+    /// persis seperti pemakaian asli aplikasi (menghindari race
+    /// perintah kilat /C|-c yang outputnya bisa hilang di ConPTY).
     #[test]
     fn pty_bisa_echo() {
         let pty_system = native_pty_system();
@@ -439,15 +473,21 @@ mod tests {
                 pixel_height: 0,
             })
             .expect("gagal buka pty");
-        let mut cmd = CommandBuilder::new(default_shell());
-        #[cfg(windows)]
-        cmd.args(["/C", "echo hello-pty"]);
-        #[cfg(not(windows))]
-        cmd.args(["-c", "echo hello-pty"]);
+        let cmd = CommandBuilder::new(default_shell());
         let mut child = pair.slave.spawn_command(cmd).expect("gagal spawn");
         drop(pair.slave);
-        let mut reader = pair.master.try_clone_reader().expect("gagal reader");
-        drop(pair.master);
+        // master WAJIB hidup selama sesi: di Windows drop master menutup
+        // ConPTY (anak mati, reader EOF); di Unix fd master yg didup tetap
+        // menahan ptmx. Inilah alasan pty_spawn menyimpan master di sesi.
+        let master = pair.master;
+        let mut reader = master.try_clone_reader().expect("gagal reader");
+        let mut writer = master.take_writer().expect("gagal writer");
+
+        #[cfg(windows)]
+        writer.write_all(b"echo hello-pty\r").expect("gagal tulis");
+        #[cfg(not(windows))]
+        writer.write_all(b"echo hello-pty\n").expect("gagal tulis");
+        writer.flush().expect("gagal flush");
 
         let mut out = String::new();
         let mut buf = [0u8; 1024];
@@ -462,7 +502,7 @@ mod tests {
             }
             std::thread::sleep(std::time::Duration::from_millis(50));
         }
-        let _ = child.wait();
+        let _ = child.kill();
         assert!(out.contains("hello-pty"), "output tak terduga: {out}");
     }
 
