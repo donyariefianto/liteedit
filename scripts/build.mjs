@@ -4,6 +4,9 @@ import { build } from "esbuild";
 import { copyFileSync, mkdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 
+// Sinkronkan versi dulu: package.json -> tauri.conf.json & Cargo.toml
+execFileSync(process.execPath, ["scripts/version.mjs"], { stdio: "inherit" });
+
 // Ikon tidak ikut ke git (file biner) — generate otomatis kalau belum ada,
 // karena tauri-build di Windows wajib menemukan src-tauri/icons/icon.ico.
 if (!existsSync("src-tauri/icons/icon.ico")) {

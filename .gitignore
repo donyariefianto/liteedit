@@ -1,8 +1,39 @@
-# Rust
+# Rust / Tauri
 src-tauri/target/
+src-tauri/gen/
+
+# Ikon di-generate otomatis saat build (scripts/make-icons.mjs)
+src-tauri/icons/*.png
+src-tauri/icons/*.ico
+src-tauri/icons/*.icns
 
 # Node
 node_modules/
-
-# Build output (diregenerasi via `npm run build`)
 dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env & secrets — jangan pernah commit
+.env
+.env.*
+!.env.example
+
+# Log
+*.log
+logs/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Cadangan
+*.orig
+*.rej
+*~

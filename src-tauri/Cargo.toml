@@ -1,6 +1,6 @@
 [package]
 name = "liteedit"
-version = "0.1.0"
+version = "0.2.0"
 description = "LiteEdit — editor kode super ringan (Tauri + Rust)"
 edition = "2021"
 

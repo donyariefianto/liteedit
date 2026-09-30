@@ -57,6 +57,22 @@ liteedit/
 4. Tab **Git** di sidebar: **Refresh status** untuk lihat perubahan,
    isi pesan lalu **Commit**.
 
+## Versioning & rilis
+
+Satu sumber versi: `package.json`. Script `scripts/version.mjs`
+otomatis menyamakan `src-tauri/tauri.conf.json` dan `src-tauri/Cargo.toml`
+setiap kali `npm run build` dijalankan (CI juga mengecek konsistensinya).
+
+```powershell
+npm version minor        # atau patch / major, atau eksplisit: npm version 0.3.0
+git push origin main --tags
+```
+
+Push tag `v*` memicu workflow **Release**: GitHub Actions otomatis build
+installer Windows & Linux lalu publish sebagai GitHub Release.
+Setiap push ke `main` menjalankan workflow **CI** (build + cargo check + test).
+Perubahan tiap versi dicatat di [CHANGELOG.md](CHANGELOG.md).
+
 ## Catatan
 
 - v0.1 adalah scaffold yang sudah terverifikasi kompilasinya (lihat SPEC §5),
