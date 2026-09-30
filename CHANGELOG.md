@@ -21,6 +21,17 @@ Format: [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
   `listen` di boot kini gagal dgn notifikasi LOUD + log diagnosa aliran event
 - Sembunyikan jendela console luar di build rilis Windows
   (`windows_subsystem = "windows"`): terminal hanya tampil di panel dalam app
+- Workflow GitHub Actions: CI (Windows + Linux: build, version-check,
+  cargo check + test) dan Release (push tag `v*` → GitHub Release berisi
+  installer Windows NSIS/MSI + Linux AppImage/deb)
+- Build rilis lokal pertama v0.2.0: `liteedit.exe` (9 MB, subsystem GUI —
+  tanpa console luar), `LiteEdit_0.2.0_x64-setup.exe` (NSIS),
+  `LiteEdit_0.2.0_x64_en-US.msi`
+### Diperbaiki
+- `package.json`: rapikan kunci duplikat (author + metadata repo GitHub
+  donyariefianto dipertahankan)
+- `identifier` Tauri: `com.liteedit.app` → `com.liteedit` (hilangkan warning
+  konflik ekstensi bundle macOS)
 ### Lisensi
 - Lisensi MIT: file `LICENSE-MIT`, header SPDX di source, metadata lisensi
   (`package.json`, `Cargo.toml`, `tauri.conf.json`), dan bagian lisensi +

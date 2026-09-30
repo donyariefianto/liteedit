@@ -35,7 +35,7 @@
     ],
     "targets": "all"
   },
-  "identifier": "com.liteedit.app",
+  "identifier": "com.liteedit",
   "productName": "LiteEdit",
   "version": "0.2.0"
 }

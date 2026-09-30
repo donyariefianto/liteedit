@@ -23,8 +23,6 @@
   },
   "name": "liteedit",
   "private": true,
-  "license": "MIT",
-  "author": "LiteEdit contributors",
   "scripts": {
     "build": "node scripts/build.mjs",
     "tauri": "tauri"

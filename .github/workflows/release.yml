@@ -1,15 +1,11 @@
-# Release: setiap tag v* (mis. v0.2.0) -> build installer Windows & Linux,
-# lalu publish sebagai GitHub Release otomatis.
-#
-# Cara rilis:
-#   npm version minor        # atau patch / major, atau versi eksplisit: npm version 0.3.0
-#   git push origin main --tags
 name: Release
 
+# Terbit otomatis saat tag v* di-push, mis. `git push origin main --tags`
+# setelah `npm version minor`. Hasil: GitHub Release berisi installer
+# Windows (NSIS + MSI) dan Linux (AppImage + deb).
 on:
   push:
-    tags:
-      - "v*"
+    tags: ["v*"]
 
 permissions:
   contents: write
@@ -20,50 +16,33 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: windows-latest
-          - platform: ubuntu-22.04
-    runs-on: ${{ matrix.platform }}
+          - os: windows-latest
+          - os: ubuntu-22.04
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@stable
 
-      - name: Install dependensi sistem Tauri (Linux)
-        if: matrix.platform == 'ubuntu-22.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev build-essential curl wget file \
-            libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+      - name: Dependensi WebKit (Linux)
+        if: runner.os == 'Linux'
+        run: >
+          sudo apt-get update &&
+          sudo apt-get install -y
+          libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
-      - name: Install dependensi npm
-        run: npm ci
+      - run: npm ci
 
-      - name: Pastikan versi package.json == tag
-        shell: node {0}
-        run: |
-          const v = require('./package.json').version;
-          const t = process.env.GITHUB_REF_NAME.replace(/^v/, '');
-          if (v !== t) {
-            console.error(`package.json (${v}) tidak sama dengan tag (${t})`);
-            process.exit(1);
-          }
-          console.log('versi == tag:', v);
-
-      - name: Build & publish release
-        uses: tauri-apps/tauri-action@v0
+      - uses: tauri-apps/tauri-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ github.ref_name }}
           releaseName: "LiteEdit ${{ github.ref_name }}"
-          releaseBody: "Lihat CHANGELOG.md untuk daftar perubahan."
           releaseDraft: false
           prerelease: false

@@ -103,7 +103,10 @@ event `pty-data` → `term.write()`. Dua arah, real-time.
 ## 8. Keputusan terbuka
 
 - Nama final (LiteEdit = nama kerja).
-- Distribusi: installer NSIS vs portable `.exe`.
+- Distribusi (diputuskan 2026-10-01): installer NSIS + MSI (Windows) dan
+  AppImage + deb (Linux) via workflow `.github/workflows/release.yml`
+  (otomatis saat push tag `v*`); `liteedit.exe` rilis mandiri 9 MB,
+  subsystem GUI (tanpa console luar).
 - Bahasa UI: Indonesia / Inggris (sekarang campur, cenderung Indonesia).
 
 ## 9. Lisensi & kredit
